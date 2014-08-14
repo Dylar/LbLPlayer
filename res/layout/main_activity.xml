@@ -1,0 +1,92 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/main_container"
+	android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+	<View
+		android:layout_height="0px"
+		android:layout_width="match_parent"
+		android:layout_weight="10"
+		android:background="#ffff00"
+		android:orientation="vertical"/>
+
+	<ListView
+		android:id="@+id/main_ListView"
+		android:layout_height="0px"
+		android:layout_width="match_parent"
+		android:layout_weight="75"
+		android:orientation="vertical">
+	</ListView>
+	<LinearLayout 
+		android:layout_width="fill_parent"
+		android:layout_height="0px"
+		android:layout_weight="5"
+		android:orientation="horizontal">
+		<TextView
+			android:layout_width="0px"
+			android:layout_height="fill_parent"
+			android:layout_weight="10"
+			android:text="0:00"/>
+		<SeekBar 
+			android:layout_width="0px"
+			android:layout_height="fill_parent"
+			android:layout_weight="80"
+			android:orientation="horizontal"/>
+		<TextView
+			android:layout_width="0px"
+			android:layout_height="fill_parent"
+			android:layout_weight="10"
+			android:text="0:00"/>
+		
+			
+
+	</LinearLayout>
+
+    <LinearLayout 
+		android:layout_width="fill_parent"
+		android:layout_height="0px"
+		android:layout_weight="10"
+		android:orientation="horizontal">
+
+		<ImageButton
+			android:id="@+id/main_button_previous"
+			android:layout_width="0px"
+			android:layout_height="match_parent"
+			android:layout_weight="20"
+			android:textOn="Pre"
+			android:textOff="Pre"/>
+
+		<ImageButton
+			android:id="@+id/main_button_play"
+			android:layout_width="0px"
+			android:layout_height="match_parent"
+			android:layout_weight="20"
+			android:textOn="Play"
+			android:textOff="Pause"/>
+
+		<ImageButton
+			android:id="@+id/main_button_stop"
+			android:layout_width="0px"
+			android:layout_height="match_parent"
+			android:layout_weight="20"
+			android:textOn="Stop"
+			android:textOff="Stop"/>
+
+		<ImageButton
+			android:id="@+id/main_button_next"
+			android:layout_width="0px"
+			android:layout_height="match_parent"
+			android:layout_weight="20"
+			android:textOn="next"
+			android:textOff="next"/>
+
+		<ImageButton
+			android:id="@+id/main_button_random"
+			android:layout_width="0px"
+			android:layout_height="match_parent"
+			android:layout_weight="20"
+			android:textOn="Ran"
+			android:textOff="dom"/>
+
+	</LinearLayout>
+</LinearLayout>
