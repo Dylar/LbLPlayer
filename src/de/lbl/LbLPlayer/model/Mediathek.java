@@ -6,20 +6,28 @@ import android.net.*;
 public class Mediathek
 {
 	public static Mediathek mediathek = new Mediathek();
-	private SparseArray<Song> allSongs;
-	private SparseArray<Integer> selectedSongs;
-	private List<Integer> songHistory;
-	private Queue<Integer> songQueue;
-	private int currentSong;
+	protected SparseArray<Song> allSongs;
+	protected SparseArray<Integer> currentList;
+	protected SparseArray<Integer> selectedSongs;
+	protected List<Integer> songHistory;
+	protected Queue<Integer> songQueue;
+	
+	protected int currentSong;
 	
 	private Randomisator random;
+	
+	private boolean playRandom;
+	private boolean playSelected;
 	
 	private Mediathek(){
 		allSongs = new SparseArray<Song>();
 		selectedSongs = new SparseArray<Integer>();
+		currentList = new SparseArray<Integer>();
 		songHistory = new ArrayList<Integer>();
 		songQueue = new LinkedList<Integer>();
 		dummySongs();
+		
+		random = new Randomisator();
 	}
 
 	public boolean isSelectedSong(int id)
@@ -40,7 +48,7 @@ public class Mediathek
 		currentSong = songId;
 	}
 
-	public Uri getcurrentSongUri()
+	public Uri getCurrentSongUri()
 	{
 		return allSongs.get(currentSong).uri;
 	}
@@ -56,6 +64,34 @@ public class Mediathek
 			selectedSongs.remove(id);
 		}
 	}
+	
+	public void setNextSong(){
+		if(playRandom)
+			setCurrentSong(random.getNextSong(currentSong));
+		else
+		{
+			if(playSelected)
+			{
+				setCurrentSong(selectedSongs.get((selectedSongs.indexOfKey(currentSong)+1)%selectedSongs.size()));
+			}
+			else
+				setCurrentSong(currentList.get((currentSong+1)%currentList.size()));
+		}
+	}
+	
+	public void setPreviousSong(){
+		if(playRandom)
+			setCurrentSong(random.getPreviousSong(currentSong));
+		else{
+			if(playSelected)
+			{
+				setCurrentSong(selectedSongs.get((selectedSongs.indexOfKey(currentSong)-1)%selectedSongs.size()));
+			}
+			else
+				setCurrentSong(currentList.get((currentSong-1)%currentList.size()));
+			
+		}
+	}
 
 	public Song getSongById(Integer id)
 	{
@@ -65,18 +101,11 @@ public class Mediathek
 	public void dummySongs(){
 		for(int i = 0;i < 20;i++){
 			allSongs.put(i,new Song(i));
+			currentList.put(i,i);
 		}
 	}
 	
-	public List<Song> getCurrentSongList(){
-		List<Song> list = new ArrayList<Song>();
-		for(int i = 0;i < allSongs.size();i++){
-			list.add(allSongs.get(allSongs.keyAt(i)));
-		}
-		return sortList(list);
-	}
-	
-	public List<Integer> getCurrentSongIdList(){
+	public List<Integer> getCurrentSongList(){
 		List<Integer> list = new ArrayList<Integer>();
 		for(int i = 0;i < allSongs.size();i++){
 			list.add(allSongs.get(allSongs.keyAt(i)).id);

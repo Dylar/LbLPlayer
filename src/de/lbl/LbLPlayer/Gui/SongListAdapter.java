@@ -23,11 +23,11 @@ public class SongListAdapter extends BaseAdapter implements OnCheckedChangeListe
 	private final int playColor = R.color.red;
 	private final int idleColor = R.color.white;
 	
-	public SongListAdapter(Context con, List<Integer> list){
+	public SongListAdapter(Context con){
 		super();
 		
 		this.con = con;
-		this.songs = list;
+		this.songs = Mediathek.mediathek.getCurrentSongList();
 	}
 
 	@Override

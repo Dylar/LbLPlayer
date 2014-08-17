@@ -41,13 +41,13 @@ public class PlayerService extends Service
 			PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
 
 			Notification notification = new Notification.Builder(getApplicationContext())
-	         	.setContentTitle("My Music Player")
+	         	.setContentTitle("LbLPlayer")
 	         	.setContentText("Now Playing: \"Rain\"")
 	         	.setSmallIcon(R.drawable.ic_launcher)
 	         	.setContentIntent(pi)
 	         	.build();
 
-			mediaPlayer = MediaPlayer.create(this, Mediathek.mediathek.getcurrentSongUri());
+			mediaPlayer = MediaPlayer.create(this, Mediathek.mediathek.getCurrentSongUri());
 			mediaPlayer.setLooping(true);
 			mediaPlayer.start();
 

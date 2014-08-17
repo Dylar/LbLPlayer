@@ -41,20 +41,28 @@ public class SystemController
 			case PLAY_NEXT_SONG:
 				playNextSong();
 				break;
+			case PLAY_PREVIOUS_SONG:
+				playPreviousSong();
+				break;
 		}
 		addToPool(sa);
 	}
 
 	private void playNextSong()
 	{
-		//Mediathek.mediathek.setNext
+		Mediathek.mediathek.setNextSong();
+		playMusic();
 	}
-
+	
+	private void playPreviousSong()
+	{
+		Mediathek.mediathek.setPreviousSong();
+		playMusic();
+	}
 	private void playThisSong(SystemAction sa)
 	{
 		Mediathek.mediathek.setCurrentSong(sa.getSongId());
 		playMusic();
-		//MainActivity.con.adapt.notifyDataSetChanged();
 	}
 	
 	private void playMusic(){
@@ -62,6 +70,7 @@ public class SystemController
 								   PlayerService.class);
 		intent.putExtra(PlayerService.START_PLAY, true);
 		con.startService(intent);
+		MainActivity.con.adapt.notifyDataSetChanged();
 	}
 
 	private void startService()

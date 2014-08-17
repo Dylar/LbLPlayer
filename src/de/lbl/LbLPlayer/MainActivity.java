@@ -147,7 +147,7 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 	private void initSongList()
 	{
 		ListView lv = (ListView) findViewById(R.id.main_ListView);
-		adapt = new SongListAdapter(this, Mediathek.mediathek.getCurrentSongIdList());
+		adapt = new SongListAdapter(this);
 		lv.setAdapter(adapt);
 	}
 
