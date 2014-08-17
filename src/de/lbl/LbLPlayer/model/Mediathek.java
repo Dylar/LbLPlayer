@@ -8,12 +8,31 @@ public class Mediathek
 	public static Mediathek mediathek = new Mediathek();
 	private SparseArray<Song> allSongs;
 	private SparseArray<Integer> selectedSongs;
+	private List<Integer> songHistory;
+	private Queue<Integer> songQueue;
 	private int currentSong;
+	
+	private Randomisator random;
 	
 	private Mediathek(){
 		allSongs = new SparseArray<Song>();
 		selectedSongs = new SparseArray<Integer>();
+		songHistory = new ArrayList<Integer>();
+		songQueue = new LinkedList<Integer>();
 		dummySongs();
+	}
+
+	public boolean isSelectedSong(int id)
+	{
+		for(int i = 0 ;i < selectedSongs.size();i++)
+			if(selectedSongs.keyAt(i) == id)
+				return true;
+		return false;
+	}
+
+	public boolean isCurrentSong(int id)
+	{
+		return currentSong == id;
 	}
 
 	public void setCurrentSong(int songId)

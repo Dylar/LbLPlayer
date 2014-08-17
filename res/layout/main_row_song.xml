@@ -12,23 +12,24 @@
 	
 	<TextView 
 		android:id="@+id/main_row_song_title"
-		android:layout_gravity="center_vertical"
+		android:gravity="center_vertical"
 		android:layout_width="0px"
 		android:layout_height="fill_parent"
 		android:layout_weight="65"/>
 	
 	<TextView 
 		android:id="@+id/main_row_song_duration"
-		android:layout_gravity="center_vertical"
+		android:gravity="center_vertical"
 		android:layout_width="0px"
 		android:layout_height="fill_parent"
-		android:layout_weight="20"/>
+		android:layout_weight="10"/>
 	
 	<ImageView 
 		android:id="@+id/main_row_song_menu"
 		android:layout_gravity="center_vertical"
 		android:layout_width="0px"
+		android:layout_marginRight="5dp"
 		android:src="@drawable/ic_launcher"
 		android:layout_height="fill_parent"
-		android:layout_weight="5"/>
+		android:layout_weight="10"/>
 </LinearLayout>

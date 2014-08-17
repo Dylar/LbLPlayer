@@ -6,14 +6,15 @@ import android.os.*;
 import android.view.*;
 import android.view.View.*;
 import android.widget.*;
+import android.widget.SeekBar.*;
 import de.lbl.LbLPlayer.Gui.*;
 import de.lbl.LbLPlayer.System.*;
 import de.lbl.LbLPlayer.model.*;
 
-public class MainActivity extends Activity implements OnClickListener
+import android.view.View.OnClickListener;
+
+public class MainActivity extends Activity implements OnClickListener,OnSeekBarChangeListener
 {
-
-
 //    /** Called when the activity is first created. */
 //    @Override
 //    public void onCreate(Bundle savedInstanceState)
@@ -28,7 +29,15 @@ public class MainActivity extends Activity implements OnClickListener
 //		
 //		
 //    }
-	public static Context con;
+	public static MainActivity con;
+	public SystemController sc;
+	
+	public SongListAdapter adapt;
+	
+	private SeekBar seekBar = null;
+	private TextView durationEnd = null;
+	private TextView durationCurrent = null;
+
 
 	private ImageButton stopButton = null;
 	private ImageButton playButton = null;
@@ -46,16 +55,99 @@ public class MainActivity extends Activity implements OnClickListener
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		con = this;
+		SystemController.con = this;
+		sc = SystemController.GetInstance();
+		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity);
 		initButton();
 		initSongList();
+		initSeekBar();
 	}
+
+	private void initSeekBar()
+	{
+		durationEnd = (TextView) findViewById(R.id.main_duration_end);
+		seekBar = (SeekBar) findViewById(R.id.main_seekbar);
+		seekBar.setMax(100);
+		seekBar.setProgress(0);
+		seekBar.setOnSeekBarChangeListener(this);
+
+		Runnable runnable = new Runnable() {
+			@Override
+			public void run()
+			{
+				while (true)
+				{
+					//seekBar.post(seekRun);
+					try
+					{
+						Thread.sleep(1000);
+					}
+					catch (InterruptedException e)
+					{}
+				}
+			}
+
+		};
+		new Thread(runnable).start();
+	}
+
+
+	private void updateSeekbar()
+	{
+//		runOnUiThread(new Runnable(){
+//
+//				@Override
+//				public void run()
+//				{
+//					if (mp.mp.isPlaying())
+//		{
+//			if (mp.mp.getDuration() != seekBar.getMax())
+//			{
+//				seekBar.setMax(mp.mp.getDuration() / 1000);
+//				markTitleView();
+//			}
+//
+//			curTime = mp.mp.getCurrentPosition() / 1000;
+//			seekBar.setProgress(curTime);
+//
+//			durationCurrent.setText("" + curTime);
+//			durationEnd.setText("" + (seekBar.getMax() - curTime));
+//		}
+	}
+//		}
+
+				public void onProgressChanged(SeekBar p1, int p2, boolean p3)
+				{
+					if (p3)
+					{
+						//mp.mp.seekTo(p2);
+					}
+				}
+
+				public void onStartTrackingTouch(SeekBar p1)
+				{
+					// TODO: Implement this method
+				}
+
+				public void onStopTrackingTouch(SeekBar p1)
+				{
+					// TODO: Implement this method
+				}
+
+
+			
+
+
+		
+	
+	
 
 	private void initSongList()
 	{
 		ListView lv = (ListView) findViewById(R.id.main_ListView);
-		ListAdapter adapt = new SongListAdapter(this, Mediathek.mediathek.getCurrentSongIdList());
+		adapt = new SongListAdapter(this, Mediathek.mediathek.getCurrentSongIdList());
 		lv.setAdapter(adapt);
 	}
 
@@ -122,13 +214,16 @@ public class MainActivity extends Activity implements OnClickListener
 
 	private void previousSong()
 	{
-		// TODO: Implement this method
+		SystemAction sa = sc.getNewAction();
+		sa.setAction(SystemController.PLAY_PREVIOUS_SONG);
+		sc.tryAction(sa);
 	}
 
 	private void nextSong()
 	{
-		// TODO: Implement this method
-		
+		SystemAction sa = sc.getNewAction();
+		sa.setAction(SystemController.PLAY_NEXT_SONG);
+		sc.tryAction(sa);
 	}
 
 	private void playMusic()

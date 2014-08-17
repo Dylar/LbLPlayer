@@ -2,8 +2,9 @@ package de.lbl.LbLPlayer.System;
 
 import android.content.*;
 import android.os.*;
-import java.util.*;
+import de.lbl.LbLPlayer.*;
 import de.lbl.LbLPlayer.model.*;
+import java.util.*;
 
 public class SystemController
 {
@@ -16,9 +17,12 @@ public class SystemController
 	private ServiceHandler sh;
 	private PlayerService ps;
 
-	public static final int PLAY_MUSIC = 0;
+	public static final int PLAY_THIS_SONG = 0;
 	public final static int START_SERVICE = 1;
-	
+	public static final int PLAY_NEXT_SONG = 2;
+	public static final int PLAY_PREVIOUS_SONG = 3;
+
+	 
 	
 	private SystemController()
 	{
@@ -29,21 +33,38 @@ public class SystemController
 	{
 		switch(sa.getAction()){
 			case START_SERVICE:
-				startService(sa);
+				startService();
 				break;
-			case PLAY_MUSIC:
-				playMusic(sa);
+			case PLAY_THIS_SONG:
+				playThisSong(sa);
+				break;
+			case PLAY_NEXT_SONG:
+				playNextSong();
 				break;
 		}
 		addToPool(sa);
 	}
 
-	private void playMusic(SystemAction sa)
+	private void playNextSong()
 	{
-		Mediathek.mediathek.setCurrentSong(sa.getSongId());
+		//Mediathek.mediathek.setNext
 	}
 
-	private void startService(SystemAction sa)
+	private void playThisSong(SystemAction sa)
+	{
+		Mediathek.mediathek.setCurrentSong(sa.getSongId());
+		playMusic();
+		//MainActivity.con.adapt.notifyDataSetChanged();
+	}
+	
+	private void playMusic(){
+		Intent intent = new Intent(con.getApplicationContext(), 
+								   PlayerService.class);
+		intent.putExtra(PlayerService.START_PLAY, true);
+		con.startService(intent);
+	}
+
+	private void startService()
 	{
 		new AsyncTask<Void, Void, Void>(){
 
