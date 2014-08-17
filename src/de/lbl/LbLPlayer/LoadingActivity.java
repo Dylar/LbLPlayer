@@ -6,6 +6,7 @@ import android.os.*;
 
 public class LoadingActivity extends Activity
 {
+	//HAAAALLLOOOO
 	@Override
 	public void onCreate(Bundle state){
 		super.onCreate(state);
