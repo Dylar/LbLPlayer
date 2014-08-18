@@ -1,9 +1,10 @@
-package de.lbl.LbLPlayer.System;
+package de.lbl.LbLPlayer.system;
 
 import android.content.*;
 import android.os.*;
 import de.lbl.LbLPlayer.*;
 import de.lbl.LbLPlayer.model.*;
+import de.lbl.LbLPlayer.system.*;
 import java.util.*;
 
 public class SystemController

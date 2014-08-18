@@ -1,4 +1,4 @@
-package de.lbl.LbLPlayer.System;
+package de.lbl.LbLPlayer.system;
 
 public class ServiceHandler
 {

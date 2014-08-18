@@ -1,4 +1,4 @@
-package de.lbl.LbLPlayer.System;
+package de.lbl.LbLPlayer.system;
 import android.content.Context;
 import android.content.Intent;
 

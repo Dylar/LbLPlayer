@@ -1,7 +1,9 @@
 package de.lbl.LbLPlayer.model;
-import android.util.*;
-import java.util.*;
 import android.net.*;
+import android.util.*;
+import de.lbl.LbLPlayer.model.*;
+import java.util.*;
+import java.security.*;
 
 public class Mediathek
 {
@@ -16,8 +18,8 @@ public class Mediathek
 	
 	private Randomisator random;
 	
-	private boolean playRandom;
-	private boolean playSelected;
+	public boolean playRandom;
+	public boolean playSelected;
 	
 	private Mediathek(){
 		allSongs = new SparseArray<Song>();

@@ -4,14 +4,15 @@ import android.app.*;
 import android.content.*;
 import android.os.*;
 import android.view.*;
+import android.view.ContextMenu.*;
 import android.view.View.*;
 import android.widget.*;
 import android.widget.SeekBar.*;
-import de.lbl.LbLPlayer.Gui.*;
-import de.lbl.LbLPlayer.System.*;
-import de.lbl.LbLPlayer.model.*;
+import de.lbl.LbLPlayer.gui.*;
+import de.lbl.LbLPlayer.system.*;
 
 import android.view.View.OnClickListener;
+import de.lbl.LbLPlayer.model.*;
 
 public class MainActivity extends Activity implements OnClickListener,OnSeekBarChangeListener
 {
@@ -29,16 +30,23 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 //		
 //		
 //    }
+	final String PLAY_RANDOM = "Play Random";
+	final String PLAY_STRAIGHT = "Play straight";
+	final String PLAY_SELECTED = "Play just selected";
+	final String PLAY_ALL = "Play all";
+	
+	
 	public static MainActivity con;
 	public SystemController sc;
-	
+
 	public SongListAdapter adapt;
-	
+
 	private SeekBar seekBar = null;
 	private TextView durationEnd = null;
 	private TextView durationCurrent = null;
 
-
+	private PopupMenu popup;
+	
 	private ImageButton stopButton = null;
 	private ImageButton playButton = null;
 	private ImageButton nextButton = null;
@@ -57,7 +65,7 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 		con = this;
 		SystemController.con = this;
 		sc = SystemController.GetInstance();
-		
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity);
 		initButton();
@@ -118,31 +126,31 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 	}
 //		}
 
-				public void onProgressChanged(SeekBar p1, int p2, boolean p3)
-				{
-					if (p3)
-					{
-						//mp.mp.seekTo(p2);
-					}
-				}
+	public void onProgressChanged(SeekBar p1, int p2, boolean p3)
+	{
+		if (p3)
+		{
+			//mp.mp.seekTo(p2);
+		}
+	}
 
-				public void onStartTrackingTouch(SeekBar p1)
-				{
-					// TODO: Implement this method
-				}
+	public void onStartTrackingTouch(SeekBar p1)
+	{
+		// TODO: Implement this method
+	}
 
-				public void onStopTrackingTouch(SeekBar p1)
-				{
-					// TODO: Implement this method
-				}
-
-
-			
+	public void onStopTrackingTouch(SeekBar p1)
+	{
+		// TODO: Implement this method
+	}
 
 
-		
-	
-	
+
+
+
+
+
+
 
 	private void initSongList()
 	{
@@ -160,7 +168,7 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 		stopButton = (ImageButton)findViewById(R.id.main_button_stop);
 		stopButton.setId(stopBtnID);
         stopButton.setOnClickListener(this);
-		
+
 		nextButton = (ImageButton)findViewById(R.id.main_button_next);
 		nextButton.setId(nextBtnID);
 		nextButton.setOnClickListener(this);
@@ -170,8 +178,9 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 		prevButton.setOnClickListener(this);
 
 		randomButton = (ImageButton)findViewById(R.id.main_button_random);
-		randomButton.setId(nextBtnID);
+		randomButton.setId(randomBtnID);
 		randomButton.setOnClickListener(this);
+
 	}
 
 	@Override
@@ -209,7 +218,46 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 
 	private void openRandomSettings()
 	{
-		// TODO: Implement this method
+		//Inflating the Popup using xml file  
+		if(popup == null){
+			popup = new PopupMenu(MainActivity.this, randomButton);  
+			popup.getMenuInflater().inflate(R.menu.main_menu_random, popup.getMenu());  
+
+			popup.getMenu().getItem(0).setTitle(PLAY_SELECTED);
+			popup.getMenu().getItem(1).setTitle(PLAY_RANDOM);
+			popup.getMenu().getItem(0).setIcon(con.getResources().getDrawable(R.drawable.selected));
+			popup.getMenu().getItem(1).setIcon(con.getResources().getDrawable(R.drawable.random));
+		}//registering popup with OnMenuItemClickListener  
+		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {  
+				
+				public boolean onMenuItemClick(MenuItem item) {  
+				switch(item.getTitle().toString()){
+					case PLAY_RANDOM:
+						item.setTitle(PLAY_STRAIGHT);
+						Toast.makeText(MainActivity.this,"Now playing random",Toast.LENGTH_SHORT).show();  
+						Mediathek.mediathek.playRandom = true;
+						break;
+					case PLAY_SELECTED:
+						item.setTitle(PLAY_ALL);
+						Toast.makeText(MainActivity.this,"Now playing selected songs",Toast.LENGTH_SHORT).show();  
+						Mediathek.mediathek.playSelected = true;
+						break;
+					case PLAY_STRAIGHT:
+						item.setTitle(PLAY_RANDOM);
+						Toast.makeText(MainActivity.this,"Now playing straight",Toast.LENGTH_SHORT).show();  
+						Mediathek.mediathek.playRandom = false;
+						break;
+					case PLAY_ALL:
+						item.setTitle(PLAY_SELECTED);
+						Toast.makeText(MainActivity.this,"Now playing all songs",Toast.LENGTH_SHORT).show();  
+						Mediathek.mediathek.playSelected = false;
+						break;
+				}
+				return true;  
+				}  
+            });  
+
+		popup.show();//showing popup menu  
 	}
 
 	private void previousSong()

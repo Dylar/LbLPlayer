@@ -1,17 +1,18 @@
-package de.lbl.LbLPlayer.Gui;
+package de.lbl.LbLPlayer.gui;
 
 import android.content.*;
-import android.view.*;
-import android.widget.*;
-import de.lbl.LbLPlayer.model.*;
-import java.util.*;
-import java.util.zip.*;
-import android.text.*;
-import de.lbl.LbLPlayer.*;
-import android.widget.CompoundButton.*;
-import de.lbl.LbLPlayer.System.*;
-import android.graphics.*;
 import android.content.res.*;
+import android.view.*;
+import android.view.View.*;
+import android.widget.*;
+import android.widget.CompoundButton.*;
+import de.lbl.LbLPlayer.*;
+import de.lbl.LbLPlayer.model.*;
+import de.lbl.LbLPlayer.system.*;
+import de.lbl.LbLPlayer.system.*;
+import java.util.*;
+
+import android.view.View.OnClickListener;
 
 public class SongListAdapter extends BaseAdapter implements OnCheckedChangeListener, OnClickListener
 {
@@ -27,6 +28,7 @@ public class SongListAdapter extends BaseAdapter implements OnCheckedChangeListe
 		super();
 		
 		this.con = con;
+		this.res = con.getResources();
 		this.songs = Mediathek.mediathek.getCurrentSongList();
 	}
 
@@ -59,9 +61,7 @@ public class SongListAdapter extends BaseAdapter implements OnCheckedChangeListe
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			contentView = inflater.inflate(R.layout.main_row_song, parent, false);
 		}
-		
-		if(res == null)
-			res = contentView.getContext().getResources();
+
 		
 		vh = (ViewHolder) contentView.getTag();
 		
