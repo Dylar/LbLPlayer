@@ -4,6 +4,7 @@ import android.app.*;
 import android.content.*;
 import android.media.*;
 import android.os.*;
+import android.widget.*;
 import de.lbl.LbLPlayer.*;
 import de.lbl.LbLPlayer.model.*;
 
@@ -24,6 +25,7 @@ public class PlayerService extends Service
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		Toast.makeText(MainActivity.con,"ja ich bin drin",Toast.LENGTH_SHORT).show();  
 		if (intent.getBooleanExtra(START_PLAY, false)) {
 			play();	
 		}
@@ -31,6 +33,8 @@ public class PlayerService extends Service
 	}
 
 	private void play() {
+		Toast.makeText(MainActivity.con,"oh ja",Toast.LENGTH_SHORT).show();  
+		
 		if (!isPlaying) {			
 			isPlaying = true;
 

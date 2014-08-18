@@ -2,9 +2,9 @@ package de.lbl.LbLPlayer.system;
 
 import android.content.*;
 import android.os.*;
+import android.widget.*;
 import de.lbl.LbLPlayer.*;
 import de.lbl.LbLPlayer.model.*;
-import de.lbl.LbLPlayer.system.*;
 import java.util.*;
 
 public class SystemController
@@ -22,6 +22,7 @@ public class SystemController
 	public final static int START_SERVICE = 1;
 	public static final int PLAY_NEXT_SONG = 2;
 	public static final int PLAY_PREVIOUS_SONG = 3;
+	public static final int PLAY_MUSIC = 4;
 
 	 
 	
@@ -37,6 +38,9 @@ public class SystemController
 				startService();
 				break;
 			case PLAY_THIS_SONG:
+				playThisSong(sa);
+				break;
+			case PLAY_MUSIC:
 				playThisSong(sa);
 				break;
 			case PLAY_NEXT_SONG:
@@ -67,6 +71,8 @@ public class SystemController
 	}
 	
 	private void playMusic(){
+		Toast.makeText(MainActivity.con,"system play",Toast.LENGTH_SHORT).show();  
+		
 		Intent intent = new Intent(con.getApplicationContext(), 
 								   PlayerService.class);
 		intent.putExtra(PlayerService.START_PLAY, true);

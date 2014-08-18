@@ -65,6 +65,9 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 		con = this;
 		SystemController.con = this;
 		sc = SystemController.GetInstance();
+		SystemAction sa = sc.getNewAction();
+		sa.setAction(SystemController.START_SERVICE);
+		sc.tryAction(sa);
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity);
@@ -276,10 +279,9 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 
 	private void playMusic()
 	{
-		Intent intent = new Intent(getApplicationContext(), 
-								   PlayerService.class);
-		intent.putExtra(PlayerService.START_PLAY, true);
-		startService(intent);
+		SystemAction sa = sc.getNewAction();
+		sa.setAction(SystemController.PLAY_MUSIC);
+		sc.tryAction(sa);
 	}
 
 	private void stopMusic()
