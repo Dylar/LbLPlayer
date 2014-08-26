@@ -1,47 +1,67 @@
 package de.lbl.LbLPlayer.system;
 
-import android.content.*;
 import android.os.*;
-import android.widget.*;
+import android.util.*;
 import de.lbl.LbLPlayer.*;
 import de.lbl.LbLPlayer.model.*;
+import de.lbl.LbLPlayer.system.*;
 import java.util.*;
 
 public class SystemController
 {
 	private static SystemController sc = new SystemController();
-	public static Context con;
-	
-	
+	public static MainActivity act;
+	private PlayerCommunicationHandler pch;
+
 	private Queue<SystemAction> actionPool;
 	
-	private ServiceHandler sh;
-	private PlayerService ps;
-
 	public static final int PLAY_THIS_SONG = 0;
-	public final static int START_SERVICE = 1;
+	public final static int STAhRT_SERVICE = 1;
 	public static final int PLAY_NEXT_SONG = 2;
 	public static final int PLAY_PREVIOUS_SONG = 3;
 	public static final int PLAY_MUSIC = 4;
+	public static final int STOP_MUSIC = 5;
+	public static final int ON_DESTROY = 6;
 
+	private String TAG = "Mediathek";
+	
 	 
 	
 	private SystemController()
 	{
+	}
+
+	public void stopSystem()
+	{
+		pch.stopService(PlayerCommunicationService.class);
+		act.finish();
+	}
+
+	public void startSystem(MainActivity act)
+	{
 		actionPool = new LinkedList<>();
+		Mediathek.CreateMediathek(); 
+		this.act = act;
+		pch = new PlayerCommunicationHandler(act);
+		pch.startService(PlayerCommunicationService.class);
+		
+		
 	}
 
 	public void tryAction(SystemAction sa)
 	{
-		switch(sa.getAction()){
-			case START_SERVICE:
-				startService();
-				break;
+		switch(sa.action){
+//			case START_SERVICE:
+//				startService();
+//				break;
 			case PLAY_THIS_SONG:
 				playThisSong(sa);
 				break;
+			case STOP_MUSIC:
+				stopMusic();
+				break;
 			case PLAY_MUSIC:
-				playThisSong(sa);
+				playMusic();
 				break;
 			case PLAY_NEXT_SONG:
 				playNextSong();
@@ -49,8 +69,16 @@ public class SystemController
 			case PLAY_PREVIOUS_SONG:
 				playPreviousSong();
 				break;
+			case ON_DESTROY:
+				onDestroy();
+				break;
 		}
 		addToPool(sa);
+	}
+
+	private void onDestroy()
+	{
+		pch.onDestroy();
 	}
 
 	private void playNextSong()
@@ -66,48 +94,62 @@ public class SystemController
 	}
 	private void playThisSong(SystemAction sa)
 	{
-		Mediathek.mediathek.setCurrentSong(sa.getSongId());
+		Log.wtf(TAG, "id song " + sa.getData().getInt(SystemAction.SONG_ID));
+		Mediathek.mediathek.setCurrentSong(sa.getData().getInt(SystemAction.SONG_ID));
 		playMusic();
 	}
 	
 	private void playMusic(){
-		Toast.makeText(MainActivity.con,"system play",Toast.LENGTH_SHORT).show();  
 		
-		Intent intent = new Intent(con.getApplicationContext(), 
-								   PlayerService.class);
-		intent.putExtra(PlayerService.START_PLAY, true);
-		con.startService(intent);
-		MainActivity.con.adapt.notifyDataSetChanged();
+		pch.sendMessageToService(SystemController.PLAY_MUSIC, null);
+		act.refreshSongList();
+		act.setPlayButtonImage();
+	}
+	
+	private void stopMusic(){
+		pch.sendMessageToService(SystemController.STOP_MUSIC, null);
+		act.refreshSongList();
+		act.setPlayButtonImage();
 	}
 
-	private void startService()
+//	private void stargtService()
+//	{
+//		new AsyncTask<Void, Void, Void>(){
+//
+//			@Override
+//			protected Void doInBackground(Void[] p1)
+//			{
+//				if(ps == null)
+//					ps = new PlayerService();
+//				
+//				Intent i = new Intent(con, PlayerService.class);
+//				con.startService(i);
+//				
+//				return null;
+//			}
+//
+//			@Override
+//			public void onPostExecute(Void v){
+//				
+//			}
+//		}.execute();
+//	}
+
+	public SystemAction getNewAction(int action)
 	{
-		new AsyncTask<Void, Void, Void>(){
-
-			@Override
-			protected Void doInBackground(Void[] p1)
-			{
-				if(ps == null)
-					ps = new PlayerService();
-				
-				Intent i = new Intent(con, PlayerService.class);
-				con.startService(i);
-				
-				return null;
-			}
-
-			@Override
-			public void onPostExecute(Void v){
-				
-			}
-		}.execute();
-	}
-
-	public SystemAction getNewAction()
-	{
+		SystemAction sa = null;
 		if(actionPool.isEmpty())
-			return new SystemAction();
-		return actionPool.poll();
+			sa = new SystemAction();
+		else sa = actionPool.poll();
+		sa.action = action;
+		Bundle b = sa.getData();
+		if(b == null)
+		{
+			b = new Bundle();
+			sa.setData(b);
+		}
+		else sa.getData().clear();
+		return sa;
 	}
 
 	public static SystemController GetInstance()

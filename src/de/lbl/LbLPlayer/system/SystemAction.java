@@ -1,29 +1,20 @@
 package de.lbl.LbLPlayer.system;
+import android.os.*;
 
 public class SystemAction
 {
+	public static final String SONG_ID = "Song id";
 	
-	private int action;
-	private int songId;
+	public int action;
+	private Bundle data;
 
-	public void setSongId(int id)
+	
+	public void setData(Bundle data)
 	{
-		songId = id;
-	}
-
-	public int getAction()
-	{
-		return action;
+		this.data = data;
 	}
 	
-	public int getSongId(){
-		return songId;
+	public Bundle getData(){
+		return data;
 	}
-
-	public void setAction(int action)
-	{
-		// TODO: Implement this method
-		this.action = action;
-	}
-	
-	}
+}

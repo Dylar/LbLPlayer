@@ -16,27 +16,11 @@ import de.lbl.LbLPlayer.model.*;
 
 public class MainActivity extends Activity implements OnClickListener,OnSeekBarChangeListener
 {
-//    /** Called when the activity is first created. */
-//    @Override
-//    public void onCreate(Bundle savedInstanceState)
-//	{
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.main);
-//		SystemController sc = SystemController.GetInstance();
-//		SystemAction sa = sc.getNewAction();
-//		sa.setAction(SystemAction.START_SERVICE);
-//		sc.tryAction(sa);
-//		// datenbank laden
-//		
-//		
-//    }
-	final String PLAY_RANDOM = "Play Random";
-	final String PLAY_STRAIGHT = "Play straight";
-	final String PLAY_SELECTED = "Play just selected";
-	final String PLAY_ALL = "Play all";
+//	final String PLAY_RANDOM = "Play Random";
+//	final String PLAY_STRAIGHT = "Play straight";
+//	final String PLAY_SELECTED = "Play just selected";
+//	final String PLAY_ALL = "Play all";
 	
-	
-	public static MainActivity con;
 	public SystemController sc;
 
 	public SongListAdapter adapt;
@@ -47,14 +31,14 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 
 	private PopupMenu popup;
 	
-	private ImageButton stopButton = null;
+	private ImageButton sequenceButton = null;
 	private ImageButton playButton = null;
 	private ImageButton nextButton = null;
 	private ImageButton prevButton = null;
 	private ImageButton randomButton = null;
 
 	private final int playBtnID = 0;
-	private final int stopBtnID = 1;
+	private final int seqBtnID = 1;
 	private final int nextBtnID = 2;
 	private final int prevBtnID = 3;
 	private final int randomBtnID = 4;
@@ -62,26 +46,23 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		con = this;
-		SystemController.con = this;
 		sc = SystemController.GetInstance();
-		SystemAction sa = sc.getNewAction();
-		sa.setAction(SystemController.START_SERVICE);
-		sc.tryAction(sa);
+		sc.startSystem(this);
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity);
 		initButton();
 		initSongList();
-		initSeekBar();
+		//initSeekBar();
 	}
 
 	private void initSeekBar()
 	{
 		durationEnd = (TextView) findViewById(R.id.main_duration_end);
+		durationCurrent = (TextView) findViewById(R.id.main_duration_current);
 		seekBar = (SeekBar) findViewById(R.id.main_seekbar);
 		seekBar.setMax(100);
-		seekBar.setProgress(0);
+		seekBar.setProgress(SettingAndState.currentTime);
 		seekBar.setOnSeekBarChangeListener(this);
 
 		Runnable runnable = new Runnable() {
@@ -147,14 +128,6 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 		// TODO: Implement this method
 	}
 
-
-
-
-
-
-
-
-
 	private void initSongList()
 	{
 		ListView lv = (ListView) findViewById(R.id.main_ListView);
@@ -168,9 +141,9 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 		playButton.setId(playBtnID);
         playButton.setOnClickListener(this);
 
-		stopButton = (ImageButton)findViewById(R.id.main_button_stop);
-		stopButton.setId(stopBtnID);
-        stopButton.setOnClickListener(this);
+		sequenceButton = (ImageButton)findViewById(R.id.main_button_sequence);
+		sequenceButton.setId(seqBtnID);
+        sequenceButton.setOnClickListener(this);
 
 		nextButton = (ImageButton)findViewById(R.id.main_button_next);
 		nextButton.setId(nextBtnID);
@@ -190,8 +163,20 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		// Inflate the menu; this adds items to the action bar if it is present.
-		//getMenuInflater().inflate(R.menu.main, menu);
+		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
+	}
+
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item)
+	{
+		// TODO: Implement this method
+		switch(featureId){
+			case R.id.close:
+				sc.stopSystem();
+				break;
+		}
+		return super.onMenuItemSelected(featureId, item);
 	}
 
 	@Override
@@ -202,10 +187,14 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 		switch (id)
 		{
 			case playBtnID:
-				playMusic();
+				if(SettingAndState.isPlaying)
+					stopMusic();
+				else
+					playMusic();
 				break;
-			case stopBtnID:
-				stopMusic();
+			case seqBtnID:
+				changePlaySequence();
+				//stopMusic();
 				break;
 			case nextBtnID:
 				nextSong();
@@ -214,80 +203,95 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 				previousSong();
 				break;
 			case randomBtnID:
-				openRandomSettings();
+				changeRandom();
+				//openRandomSettings();
 				break;
 		}
 	}
 
-	private void openRandomSettings()
+	private void changeRandom()
 	{
-		//Inflating the Popup using xml file  
-		if(popup == null){
-			popup = new PopupMenu(MainActivity.this, randomButton);  
-			popup.getMenuInflater().inflate(R.menu.main_menu_random, popup.getMenu());  
+		Mediathek.mediathek.changeRandom();
+		setRandomButtonImage();
+	}
 
-			popup.getMenu().getItem(0).setTitle(PLAY_SELECTED);
-			popup.getMenu().getItem(1).setTitle(PLAY_RANDOM);
-			popup.getMenu().getItem(0).setIcon(con.getResources().getDrawable(R.drawable.selected));
-			popup.getMenu().getItem(1).setIcon(con.getResources().getDrawable(R.drawable.random));
-		}//registering popup with OnMenuItemClickListener  
-		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {  
-				
-				public boolean onMenuItemClick(MenuItem item) {  
-				switch(item.getTitle().toString()){
-					case PLAY_RANDOM:
-						item.setTitle(PLAY_STRAIGHT);
-						Toast.makeText(MainActivity.this,"Now playing random",Toast.LENGTH_SHORT).show();  
-						Mediathek.mediathek.playRandom = true;
-						break;
-					case PLAY_SELECTED:
-						item.setTitle(PLAY_ALL);
-						Toast.makeText(MainActivity.this,"Now playing selected songs",Toast.LENGTH_SHORT).show();  
-						Mediathek.mediathek.playSelected = true;
-						break;
-					case PLAY_STRAIGHT:
-						item.setTitle(PLAY_RANDOM);
-						Toast.makeText(MainActivity.this,"Now playing straight",Toast.LENGTH_SHORT).show();  
-						Mediathek.mediathek.playRandom = false;
-						break;
-					case PLAY_ALL:
-						item.setTitle(PLAY_SELECTED);
-						Toast.makeText(MainActivity.this,"Now playing all songs",Toast.LENGTH_SHORT).show();  
-						Mediathek.mediathek.playSelected = false;
-						break;
-				}
-				return true;  
-				}  
-            });  
-
-		popup.show();//showing popup menu  
+	private void changePlaySequence()
+	{
+		Mediathek.mediathek.changePlaySequence();
+		setSequenceButtonImage();
 	}
 
 	private void previousSong()
 	{
-		SystemAction sa = sc.getNewAction();
-		sa.setAction(SystemController.PLAY_PREVIOUS_SONG);
+		SystemAction sa = sc.getNewAction(SystemController.PLAY_PREVIOUS_SONG);
 		sc.tryAction(sa);
 	}
 
 	private void nextSong()
 	{
-		SystemAction sa = sc.getNewAction();
-		sa.setAction(SystemController.PLAY_NEXT_SONG);
+		SystemAction sa = sc.getNewAction(SystemController.PLAY_NEXT_SONG);
 		sc.tryAction(sa);
 	}
 
 	private void playMusic()
 	{
-		SystemAction sa = sc.getNewAction();
-		sa.setAction(SystemController.PLAY_MUSIC);
+		SystemAction sa = sc.getNewAction(SystemController.PLAY_MUSIC);
 		sc.tryAction(sa);
 	}
 
 	private void stopMusic()
 	{
-		Intent intent = new Intent(getApplicationContext(),
-								   PlayerService.class);
-		stopService(intent);
+		SystemAction sa = sc.getNewAction(SystemController.STOP_MUSIC);
+		sc.tryAction(sa);
+		
+	}
+	
+	public void setPlayButtonImage(){
+		playButton.setImageDrawable(getResources().getDrawable(SettingAndState.isPlaying? R.drawable.play:R.drawable.pause));
+		showToast(SettingAndState.isPlaying?"play music":"music stopped");
+	}
+	
+	public void setRandomButtonImage(){
+		if(!SettingAndState.isRandom){
+			randomButton.setImageDrawable(getResources().getDrawable(R.drawable.randomnot));
+			showToast("play not random");
+		}
+		else {
+			randomButton.setImageDrawable(getResources().getDrawable(R.drawable.random));
+			showToast("play random");
+		}
+	}
+	
+	public void setSequenceButtonImage(){
+		switch(SettingAndState.playSeq){
+			case ALL:
+				sequenceButton.setImageDrawable(getResources().getDrawable(R.drawable.selectednot));
+				showToast("repeat all");
+				break;
+			case SINGLE:
+				sequenceButton.setImageDrawable(getResources().getDrawable(R.drawable.selected));
+				showToast("repeat song");
+				break;
+			case SELECTED:
+				sequenceButton.setImageDrawable(getResources().getDrawable(R.drawable.ok));
+				showToast("repeat selected songs");
+				break;
+		}
+	}
+
+	private void showToast(String s)
+	{
+		Toast.makeText(this, s,Toast.LENGTH_SHORT).show();
+	}
+	
+	public void refreshSongList(){
+		adapt.notifyDataSetChanged();
+	}
+	
+	@Override
+	public void onDestroy(){
+		super.onDestroy();
+		SystemAction sa = sc.getNewAction(SystemController.ON_DESTROY);
+		sc.tryAction(sa);
 	}
 }

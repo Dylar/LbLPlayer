@@ -1,5 +1,5 @@
 package de.lbl.LbLPlayer.model;
-import android.util.*;
+import java.util.*;
 
 public class Randomisator
 {
@@ -8,16 +8,11 @@ public class Randomisator
 	}
 	
 	public int getNextSong(int id){
-		SparseArray<Song> allSongs = Mediathek.mediathek.allSongs;
-		
+		List<Integer> songs = Mediathek.mediathek.currentList;
+		id = (int) (songs.size() * Math.random());
 		return id;
 	}
 	//TODO
-	public int getPreviousSong(int id){
-		SparseArray<Song> allSongs = Mediathek.mediathek.allSongs;
-
-		return allSongs.get((id-1)%allSongs.size()).id;
-	}
 	
 	private int getRandomSong(){
 		return 0;
