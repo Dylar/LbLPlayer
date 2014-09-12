@@ -4,6 +4,19 @@
     <string name="hello">Hello World, MainActivity!</string>
     <string name="app_name">LbLPlayer</string>
 	<string name="service_name">LbLPlayer-Service</string>
-	
+	<string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="imgdesc">imgdesc</string>
 
+    <string-array name="drawerRowTitles">
+        <item>Current</item>
+        <item>Playlists</item>
+        <item>Folder</item>
+    </string-array>
+
+    <array name="drawerRowIcons">
+        <item>@drawable/ic_launcher</item>
+        <item>@drawable/ic_launcher</item>
+        <item>@drawable/ic_launcher</item>
+    </array>
 </resources>

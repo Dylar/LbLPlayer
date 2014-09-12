@@ -32,7 +32,7 @@ public class SongListAdapter extends BaseAdapter implements OnCheckedChangeListe
 
 		this.con = con;
 		this.res = con.getResources();
-		this.songs = Mediathek.mediathek.getCurrentSongList();
+		this.songs = Mediathek.songH.getCurrentSongList();
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class SongListAdapter extends BaseAdapter implements OnCheckedChangeListe
 	@Override
 	public View getView(int pos, View contentView, ViewGroup parent)
 	{
-		Song s = Mediathek.mediathek.getSongById(getItem(pos));
+		Song s = Mediathek.songH.getSongById(getItem(pos));
 
 		ViewHolder vh = null;
 		if (contentView == null)
@@ -87,21 +87,15 @@ public class SongListAdapter extends BaseAdapter implements OnCheckedChangeListe
 
 		vh.check.setOnCheckedChangeListener(null);
 
-		if (Mediathek.mediathek.isSelectedSong(s.id))
-		{
-			vh.check.setChecked(true);
-		}
-		else
-		{
-			vh.check.setChecked(false);
-		}
+		vh.check.setChecked(Mediathek.songH.isSelectedSong(s.id));
+		
 
 		vh.check.setOnCheckedChangeListener(this);
 		vh.check.setId(s.id);
 
 		//vh.menu.setOnClickListener(this);
 
-		if (Mediathek.mediathek.isCurrentSong(s.id))
+		if (Mediathek.songH.isCurrentSong(s.id))
 		{
 			if (currentSongView != null)
 				currentSongView.setTextColor(res.getColor(idleColor));
@@ -125,7 +119,7 @@ public class SongListAdapter extends BaseAdapter implements OnCheckedChangeListe
 	@Override
 	public void onCheckedChanged(CompoundButton check, boolean isChecked)
 	{
-		Mediathek.mediathek.changeSelectedById(check.getId());
+		Mediathek.songH.changeSelectedById(check.getId());
 	}
 
 	@Override

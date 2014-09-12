@@ -4,6 +4,8 @@ public class SettingAndState
 {
 
 	public static int currentTime;
+	public static int songDuration;
+	
 	public enum PlaySequence{
 		ALL,SELECTED,SINGLE;
 	}

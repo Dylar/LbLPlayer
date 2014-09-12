@@ -1,47 +1,60 @@
 package de.lbl.LbLPlayer;
 
+
+
 import android.app.*;
-import android.content.*;
+import android.content.res.*;
+import android.graphics.drawable.*;
 import android.os.*;
+import android.support.v4.app.*;
+import android.support.v4.widget.*;
+import android.util.*;
 import android.view.*;
-import android.view.ContextMenu.*;
 import android.view.View.*;
 import android.widget.*;
 import android.widget.SeekBar.*;
+import de.lbl.LbLPlayer.*;
 import de.lbl.LbLPlayer.gui.*;
-import de.lbl.LbLPlayer.system.*;
-
-import android.view.View.OnClickListener;
 import de.lbl.LbLPlayer.model.*;
+import de.lbl.LbLPlayer.system.*;
+import java.util.*;
 
-public class MainActivity extends Activity implements OnClickListener,OnSeekBarChangeListener
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.view.View.OnClickListener;
+
+public class MainActivity extends Activity
 {
 //	final String PLAY_RANDOM = "Play Random";
 //	final String PLAY_STRAIGHT = "Play straight";
 //	final String PLAY_SELECTED = "Play just selected";
 //	final String PLAY_ALL = "Play all";
-	
+
 	public SystemController sc;
 
-	public SongListAdapter adapt;
+	String[] menutitles;
+	TypedArray menuIcons;
 
-	private SeekBar seekBar = null;
-	private TextView durationEnd = null;
-	private TextView durationCurrent = null;
+	// nav drawer title
+	private CharSequence mDrawerTitle;
+	private CharSequence mTitle;
 
-	private PopupMenu popup;
+	private DrawerLayout mDrawerLayout;
+	private ListView mDrawerList;
+	private ActionBarDrawerToggle mDrawerToggle;
+
+	private List<DrawerRowInfo> rowItems;
+	private DrawerMenuAdapter adapter;
+	private FragmentManager fragmentManager;
 	
-	private ImageButton sequenceButton = null;
-	private ImageButton playButton = null;
-	private ImageButton nextButton = null;
-	private ImageButton prevButton = null;
-	private ImageButton randomButton = null;
+	private SeekbarHandler sbh;
+	private MusicButtonHandler mbh;
 
-	private final int playBtnID = 0;
-	private final int seqBtnID = 1;
-	private final int nextBtnID = 2;
-	private final int prevBtnID = 3;
-	private final int randomBtnID = 4;
+	public void startSeekbar(int p0, int dur)
+	{
+		sbh.startSeekbar(p0, dur);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -51,113 +64,195 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity);
-		initButton();
-		initSongList();
-		//initSeekBar();
+		
+		initDrawerMenu();
+		sbh = new SeekbarHandler(this);
+		mbh = new MusicButtonHandler(this);
+		
+		initDisplay();
+		
+	}
+	
+	private void initDisplay(){
+		fragmentManager = getFragmentManager();
+		
+//		FragmentTransaction transaction = fragmentManager.beginTransaction();
+//		//transaction.setCustomAnimations(R.animator.enter, R.animator.exit, R.animator.popenter, R.animator.popexit);
+//		Fragment frag = new Songs_Fragment();
+//		//frag.se
+//		transaction.add(R.id.main_container, frag);
+//		//transaction.addToBackStack(null);
+//		transaction.commit();
+		updateDisplay(0);
 	}
 
-	private void initSeekBar()
+	private void changeFragment(Fragment frag)
 	{
-		durationEnd = (TextView) findViewById(R.id.main_duration_end);
-		durationCurrent = (TextView) findViewById(R.id.main_duration_current);
-		seekBar = (SeekBar) findViewById(R.id.main_seekbar);
-		seekBar.setMax(100);
-		seekBar.setProgress(SettingAndState.currentTime);
-		seekBar.setOnSeekBarChangeListener(this);
+		FragmentTransaction transaction = fragmentManager.beginTransaction();
+		transaction.setCustomAnimations(R.animator.enter, R.animator.exit, R.animator.popenter, R.animator.popexit);
 
-		Runnable runnable = new Runnable() {
-			@Override
-			public void run()
+		transaction.replace(R.id.main_container, frag);
+		transaction.addToBackStack(null);
+		transaction.commit();
+	}
+
+	private void initDrawerMenu()
+	{
+		mTitle = mDrawerTitle = getTitle();
+
+		getActionBar().setIcon(
+			new ColorDrawable(getResources().getColor(android.R.color.transparent)));   
+
+		menutitles = getResources().getStringArray(R.array.drawerRowTitles);
+		menuIcons = getResources().obtainTypedArray(R.array.drawerRowIcons);
+
+		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer);
+		mDrawerList = (ListView) findViewById(R.id.slider_list);
+
+		rowItems = new ArrayList<DrawerRowInfo>();
+
+		for (int i = 0; i < menutitles.length; i++)
+		{
+			DrawerRowInfo items = new DrawerRowInfo(menutitles[i], menuIcons.getResourceId(
+														i, -1));
+			rowItems.add(items);
+		}
+
+		menuIcons.recycle();
+
+		adapter = new DrawerMenuAdapter(getApplicationContext(), rowItems);
+
+		mDrawerList.setAdapter(adapter);
+		mDrawerList.setOnItemClickListener(new SlideitemListener());
+
+		// enabling action bar app icon and behaving it as toggle button
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setHomeButtonEnabled(true);
+
+		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+												  R.drawable.ic_launcher , R.string.app_name, R.string.app_name) {
+			public void onDrawerClosed(View view)
 			{
-				while (true)
-				{
-					//seekBar.post(seekRun);
-					try
-					{
-						Thread.sleep(1000);
-					}
-					catch (InterruptedException e)
-					{}
-				}
+				getActionBar().setTitle(mTitle);
+				// calling onPrepareOptionsMenu() to show action bar icons
+				invalidateOptionsMenu();
 			}
 
+			public void onDrawerOpened(View drawerView)
+			{
+				getActionBar().setTitle(mDrawerTitle);
+				// calling onPrepareOptionsMenu() to hide action bar icons
+				invalidateOptionsMenu();
+			}
 		};
-		new Thread(runnable).start();
-	}
 
+		mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-	private void updateSeekbar()
-	{
-//		runOnUiThread(new Runnable(){
-//
-//				@Override
-//				public void run()
-//				{
-//					if (mp.mp.isPlaying())
-//		{
-//			if (mp.mp.getDuration() != seekBar.getMax())
-//			{
-//				seekBar.setMax(mp.mp.getDuration() / 1000);
-//				markTitleView();
-//			}
-//
-//			curTime = mp.mp.getCurrentPosition() / 1000;
-//			seekBar.setProgress(curTime);
-//
-//			durationCurrent.setText("" + curTime);
-//			durationEnd.setText("" + (seekBar.getMax() - curTime));
-//		}
-	}
+//		if (savedInstanceState == null) {
+//			// on first time display view for first nav item
+//			updateDisplay(0);
 //		}
 
-	public void onProgressChanged(SeekBar p1, int p2, boolean p3)
+	}
+
+	private void updateDisplay(int position)
 	{
-		if (p3)
+		Fragment fragment = null;
+		switch (position)
 		{
-			//mp.mp.seekTo(p2);
+			case 0:
+				fragment = new Songs_Fragment();
+				
+				showToast("pos 0");
+				break;
+			case 1:
+				showToast("pos 1");
+				//adapt = playlistAdapt;
+				fragment = new PlaylistFragment();
+				break;
+			case 2:
+				showToast("pos 2");
+				
+				fragment = new FolderFragment();
+				break;
+			default:
+				break;
+		}
+		mDrawerLayout.closeDrawer(mDrawerList);
+		if (fragment != null)
+		{
+			changeFragment(fragment);
+             // update selected item and title, then close the drawer
+            setTitle(menutitles[position]);
+			mDrawerLayout.closeDrawer(mDrawerList);
+		}
+		else
+		{
+		 //error in creating fragment
+		Log.e("MainActivity", "Error in creating fragment");
+		}
+
+	}
+
+	@Override
+	public void setTitle(CharSequence title)
+	{
+		mTitle = title;
+        getActionBar().setTitle(mTitle);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item)
+	{
+		// toggle nav drawer on selecting action bar app icon/title
+		if (mDrawerToggle.onOptionsItemSelected(item))
+		{
+			return true;
+		}
+		// Handle action bar actions click
+		switch (item.getItemId())
+		{
+				//case R.id.action_settings:
+				//return true;
+			default :
+				return super.onOptionsItemSelected(item);
 		}
 	}
 
-	public void onStartTrackingTouch(SeekBar p1)
+	/***
+	 * Called when invalidateOptionsMenu() is triggered
+	 */
+    @Override
+	public boolean onPrepareOptionsMenu(Menu menu)
 	{
-		// TODO: Implement this method
+		// if nav drawer is opened, hide the action items
+		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+		menu.findItem(R.id.menu).setVisible(true);
+		invalidateOptionsMenu();
+		return super.onPrepareOptionsMenu(menu);
 	}
 
-	public void onStopTrackingTouch(SeekBar p1)
+	
+	/**
+	 * When using the ActionBarDrawerToggle, you must call it during
+	 * onPostCreate() and onConfigurationChanged()...
+	 */
+
+    @Override
+	protected void onPostCreate(Bundle savedInstanceState)
 	{
-		// TODO: Implement this method
+		super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+		mDrawerToggle.syncState();
 	}
 
-	private void initSongList()
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
 	{
-		ListView lv = (ListView) findViewById(R.id.main_ListView);
-		adapt = new SongListAdapter(this);
-		lv.setAdapter(adapt);
-	}
-
-	private void initButton()
-	{
-		playButton = (ImageButton)findViewById(R.id.main_button_play);
-		playButton.setId(playBtnID);
-        playButton.setOnClickListener(this);
-
-		sequenceButton = (ImageButton)findViewById(R.id.main_button_sequence);
-		sequenceButton.setId(seqBtnID);
-        sequenceButton.setOnClickListener(this);
-
-		nextButton = (ImageButton)findViewById(R.id.main_button_next);
-		nextButton.setId(nextBtnID);
-		nextButton.setOnClickListener(this);
-
-		prevButton = (ImageButton)findViewById(R.id.main_button_previous);
-		prevButton.setId(prevBtnID);
-		prevButton.setOnClickListener(this);
-
-		randomButton = (ImageButton)findViewById(R.id.main_button_random);
-		randomButton.setId(randomBtnID);
-		randomButton.setOnClickListener(this);
-
-	}
+		super.onConfigurationChanged(newConfig);
+		// Pass any configuration change to the drawer toggles
+		mDrawerToggle.onConfigurationChanged(newConfig);
+    }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
@@ -170,128 +265,61 @@ public class MainActivity extends Activity implements OnClickListener,OnSeekBarC
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item)
 	{
-		// TODO: Implement this method
-		switch(featureId){
+		switch (item.getItemId())
+		{
 			case R.id.close:
 				sc.stopSystem();
 				break;
+			case R.id.menu:
+				
+				break;
+				//onDestroy();
 		}
 		return super.onMenuItemSelected(featureId, item);
 	}
 
-	@Override
-	public void onClick(View p1)
-	{
-		// TODO: Implement this method
-		int id = p1.getId();
-		switch (id)
-		{
-			case playBtnID:
-				if(SettingAndState.isPlaying)
-					stopMusic();
-				else
-					playMusic();
-				break;
-			case seqBtnID:
-				changePlaySequence();
-				//stopMusic();
-				break;
-			case nextBtnID:
-				nextSong();
-				break;
-			case prevBtnID:
-				previousSong();
-				break;
-			case randomBtnID:
-				changeRandom();
-				//openRandomSettings();
-				break;
-		}
-	}
-
-	private void changeRandom()
-	{
-		Mediathek.mediathek.changeRandom();
-		setRandomButtonImage();
-	}
-
-	private void changePlaySequence()
-	{
-		Mediathek.mediathek.changePlaySequence();
-		setSequenceButtonImage();
-	}
-
-	private void previousSong()
-	{
-		SystemAction sa = sc.getNewAction(SystemController.PLAY_PREVIOUS_SONG);
-		sc.tryAction(sa);
-	}
-
-	private void nextSong()
-	{
-		SystemAction sa = sc.getNewAction(SystemController.PLAY_NEXT_SONG);
-		sc.tryAction(sa);
-	}
-
-	private void playMusic()
-	{
-		SystemAction sa = sc.getNewAction(SystemController.PLAY_MUSIC);
-		sc.tryAction(sa);
-	}
-
-	private void stopMusic()
-	{
-		SystemAction sa = sc.getNewAction(SystemController.STOP_MUSIC);
-		sc.tryAction(sa);
-		
-	}
-	
-	public void setPlayButtonImage(){
-		playButton.setImageDrawable(getResources().getDrawable(SettingAndState.isPlaying? R.drawable.play:R.drawable.pause));
-		showToast(SettingAndState.isPlaying?"play music":"music stopped");
-	}
-	
-	public void setRandomButtonImage(){
-		if(!SettingAndState.isRandom){
-			randomButton.setImageDrawable(getResources().getDrawable(R.drawable.randomnot));
-			showToast("play not random");
-		}
-		else {
-			randomButton.setImageDrawable(getResources().getDrawable(R.drawable.random));
-			showToast("play random");
-		}
-	}
-	
-	public void setSequenceButtonImage(){
-		switch(SettingAndState.playSeq){
-			case ALL:
-				sequenceButton.setImageDrawable(getResources().getDrawable(R.drawable.selectednot));
-				showToast("repeat all");
-				break;
-			case SINGLE:
-				sequenceButton.setImageDrawable(getResources().getDrawable(R.drawable.selected));
-				showToast("repeat song");
-				break;
-			case SELECTED:
-				sequenceButton.setImageDrawable(getResources().getDrawable(R.drawable.ok));
-				showToast("repeat selected songs");
-				break;
-		}
-	}
-
 	private void showToast(String s)
 	{
-		Toast.makeText(this, s,Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
 	}
-	
-	public void refreshSongList(){
-		adapt.notifyDataSetChanged();
+
+	public void refreshList()
+	{
+		Fragment frag = fragmentManager.findFragmentById(R.id.main_container);
+		if (frag instanceof Songs_Fragment)
+			((Songs_Fragment)frag).refresh();
+		mbh.setPlayButtonImage();
 	}
-	
+
 	@Override
-	public void onDestroy(){
+	public void onDestroy()
+	{
 		super.onDestroy();
 		SystemAction sa = sc.getNewAction(SystemController.ON_DESTROY);
 		sc.tryAction(sa);
 	}
+
+
+	
+	private class SlideitemListener implements ListView.OnItemClickListener
+	{
+		@Override
+		public void onItemClick(AdapterView parent, View view, int position, long id)
+		{
+			updateDisplay(position);
+		}
+	}
+
+	@Override
+	public void onBackPressed()
+	{
+		if(fragmentManager.getBackStackEntryCount() < 3){
+			fragmentManager.popBackStack();
+			super.onBackPressed();
+		}
+		else
+			fragmentManager.popBackStack();
+	}
+
+	
 }

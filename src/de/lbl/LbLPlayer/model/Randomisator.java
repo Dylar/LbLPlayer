@@ -8,7 +8,7 @@ public class Randomisator
 	}
 	
 	public int getNextSong(int id){
-		List<Integer> songs = Mediathek.mediathek.currentList;
+		List<Integer> songs = Mediathek.songH.currentList;
 		id = (int) (songs.size() * Math.random());
 		return id;
 	}

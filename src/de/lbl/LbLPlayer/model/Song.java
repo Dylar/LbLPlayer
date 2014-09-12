@@ -6,23 +6,23 @@ import android.util.*;
 import de.lbl.LbLPlayer.system.*;
 import java.io.*;
 
-public class Song
+public class Song extends Entry
 {
-	public String title = "muh";
 	public Uri uri;
 	public int id = 42;
 	private File file;
 	public String duration = "0:42";
+	public int durationInt;
 
 	private String TAG;
 
     public Song(File f, int id)
 	{
 		//Log.wtf(TAG, "" + id);
-		file = f;
+		super(f.getName());
 		uri = Uri.fromFile(f);
 		this.id = id;
-		setTitle(f.getName());
+		
 		initMediaDuration();
 		//  setInfo(f);
 	}
@@ -64,14 +64,16 @@ public class Song
         } 
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        int duration = 0;
+      
         try
 		{ 
             retriever.setDataSource(SystemController.act, uri);
             String dur = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
             if (dur != null)
 			{
+			
 				int milliseconds = Integer.parseInt(dur);
+				durationInt = milliseconds;
 				int seconds = (int) (milliseconds / 1000) % 60 ;
 				int minutes = (int) ((milliseconds / (1000*60)) % 60);
 				int hours   = (int) ((milliseconds / (1000*60*60)) % 24);

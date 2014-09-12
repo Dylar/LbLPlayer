@@ -21,9 +21,11 @@ public class PlayerCommunicationService extends AbsCommunicationService implemen
 
 	public static String START_PLAY = "START_PLAY";
 
+	
 	private void play() {
 		if (!SettingAndState.isPlaying) {			
 			SettingAndState.isPlaying = true;
+			
 
 //			Intent intent = new Intent(this, MainActivity.class);
 //			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|
@@ -38,12 +40,18 @@ public class PlayerCommunicationService extends AbsCommunicationService implemen
 //	         	.setContentIntent(pi)
 //	         	.build();
 //
-			mediaPlayer = MediaPlayer.create(this, Mediathek.mediathek.getCurrentSongUri());
+			mediaPlayer = MediaPlayer.create(this, Mediathek.songH.getCurrentSongUri());
 			//mediaPlayer.setLooping(true);
 			mediaPlayer.setOnCompletionListener(this);
 			
+			Bundle data = new Bundle();
+			//data.putInt(SystemAction.MUSIC_CURRENT_POSITION, mediaPlayer.getCurrentPosition());
+			data.putInt(SystemAction.MUSIC_CURRENT_DURATION, mediaPlayer.getDuration());
+			sendMessageToUI(SystemController.START_SEEKBAR,data);
+			
 			mediaPlayer.start();
-
+			
+		
 			//startForeground(classID, notification);
 		}
 		else{
@@ -75,7 +83,15 @@ public class PlayerCommunicationService extends AbsCommunicationService implemen
 			case SystemController.STOP_MUSIC:
 				stop();
 				break;
+			case SystemController.CHANGED_SEEKBAR:
+				changePosition(msg.getData());
+				break;
 		}
+	}
+
+	private void changePosition(Bundle data)
+	{
+		mediaPlayer.seekTo(data.getInt(SystemAction.MUSIC_POSITION));
 	}
 
 	@Override
@@ -91,6 +107,9 @@ public class PlayerCommunicationService extends AbsCommunicationService implemen
 	public void onDestroy() {
 		super.onDestroy();
 		stop();
+		//sendMessageToUI(SystemController.FINISH
 	}	
+	
+	
 	
 }

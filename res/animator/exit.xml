@@ -1,0 +1,16 @@
+<set>
+
+	<objectAnimator xmlns:android="http://schemas.android.com/apk/res/android"
+		android:valueType="floatType"
+		android:valueTo="-1000"
+		android:valueFrom="0"
+		android:propertyName="x"
+		android:duration="1000"/>
+</set>
+
+    <!--<objectAnimator xmlns:android="http://schemas.android.com/apk/res/android"
+               android:fromXDelta="0"
+               android:toXDelta="-100%"
+               android:interpolator="@android:anim/accelerate_interpolator"
+               android:duration="@android:integer/config_mediumAnimTime"/>
+</set>-->

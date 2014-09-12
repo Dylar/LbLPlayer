@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set>
+    <!--<objectAnimator xmlns:android="http://schemas.android.com/apk/res/android"
+		android:fromXDelta="100%"
+		android:toXDelta="0"
+		android:valueFrom=""
+		android:interpolator="@android:anim/decelerate_interpolator"
+		android:duration="@android:integer/config_mediumAnimTime"/>
+</set>-->
+	<objectAnimator xmlns:android="http://schemas.android.com/apk/res/android"
+		android:valueType="floatType"
+		android:valueTo="0"
+		android:valueFrom="1000"
+		android:propertyName="x"
+		android:duration="1000"/>
+</set>
+
