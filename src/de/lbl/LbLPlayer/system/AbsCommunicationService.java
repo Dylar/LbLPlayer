@@ -6,6 +6,7 @@ import android.os.*;
 import android.util.*;
 import de.lbl.LbLPlayer.*;
 import java.util.*;
+import java.lang.ref.*;
 
 public abstract class AbsCommunicationService extends Service
 {
@@ -35,7 +36,7 @@ public abstract class AbsCommunicationService extends Service
         super.onCreate();
         mClients = new ArrayList<Messenger>();
 		Log.i(TAG, "Service Started.");
-		mMessenger = new Messenger(new IncomingHandler());
+		mMessenger = new Messenger(new IncomingHandler(this));
 		
         initNotification();
         isRunning = true;
@@ -71,21 +72,28 @@ public abstract class AbsCommunicationService extends Service
         return isRunning;
     }
 	
-	class IncomingHandler extends Handler
-	{ // Handler of incoming messages from clients.
+	static class IncomingHandler extends Handler
+	{
+		private final WeakReference<AbsCommunicationService> mService; // Handler of incoming messages from clients.
+	
+		public IncomingHandler(AbsCommunicationService service){
+			mService = new WeakReference<AbsCommunicationService>(service);
+		}
         @Override
         public void handleMessage(Message msg)
 		{
+			AbsCommunicationService service = mService.get();
+			if(service != null)
 			switch (msg.what)
 			{
 				case REGISTER_CLIENT:
-					mClients.add(msg.replyTo);
+					service.mClients.add(msg.replyTo);
 					break;
 				case UNREGISTER_CLIENT:
-					mClients.remove(msg.replyTo);
+					service.mClients.remove(msg.replyTo);
 					break;
 				default:
-					AbsCommunicationService.this.handleMessage(msg);
+					service.handleMessage(msg);
             }
 			
         }
